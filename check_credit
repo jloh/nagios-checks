@@ -5,6 +5,7 @@
 
 # Get our functions
 CURL=$(which curl)
+AWK=$(which awk)
 
 # Help function
 printHelp() {
@@ -61,7 +62,7 @@ if [ -z "${USER}" ] || [ -z "${PASS}" ]; then
 fi
 
 # Get credits
-CREDIT=$($CURL -s "$API_URL?user=$USER&password=$PASS&api_id=$API_ID" | awk '{print $2}')
+CREDIT=$($CURL -s "$API_URL?user=$USER&password=$PASS&api_id=$API_ID" | $AWK '{print $2}')
 
 # Return our results
 if [[ $CREDIT < $CRITICAL_VALUE ]]; then
