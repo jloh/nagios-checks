@@ -1,0 +1,18 @@
+ Sublime stuff
+ansible.sublime-workspace
+sftp-config.json
+
+# vim files
+*~
+*.swp
+*.swoo
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+*.un~
+Session.vim
+.netrwhist
+
+# OSX Files
+.DS_Store
+.AppleDouble
+.LSOverride
