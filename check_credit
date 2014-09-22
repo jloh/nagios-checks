@@ -1,0 +1,78 @@
+#!/bin/bash
+#
+# check_credit
+#
+
+# Get our functions
+CURL=$(which curl)
+
+# Help function
+printHelp() {
+	echo "USAGE: $0 ./check_credit -user <user> -pass <password> -api <api_id> [-c] [-w]"
+}
+
+# Define our constants
+# Also define warning and critical defaults
+API_URL="https://api.clickatell.com/http/getbalance"
+WARNING_VALUE="20"
+CRITICAL_VALUE="10"
+
+# Get arguments
+while [[ $# -gt 0 ]] && [[ ."$1" = .-* ]] ;
+do
+	opt="$1";
+	shift;
+	case "$opt" in
+		"-" )
+			break 2
+			;;
+		"-user" )
+			USER="$1"
+			shift
+			;;
+		"-pass" )
+			PASS="$1"
+			shift
+			;;
+		"-api" )
+			API_ID="$1"
+			shift
+			;;
+		"-c" )
+			CRITICAL_VALUE="$1"
+			shift
+			;;
+		"-w" )
+			WARNING_VALUE="$1"
+			shift
+			;;
+		*) 
+			echo >&2 "Invalid option: $@";
+			printHelp
+			exit 3
+			;;
+	esac
+done
+
+if [ -z "${USER}" ] || [ -z "${PASS}" ]; then
+	echo "Arguments not set"
+	printHelp
+	exit 3
+fi
+
+# Get credits
+CREDIT=$($CURL -s "$API_URL?user=$USER&password=$PASS&api_id=$API_ID" | awk '{print $2}')
+
+# Return our results
+if [[ $CREDIT < $CRITICAL_VALUE ]]; then
+	echo "CRITICAL: Only $CREDIT remaining"
+	exit 2
+
+elif [[ $CREDIT < $WARNING_VALUE ]]; then
+	echo "WARNING: Only $CREDIT remaining"
+	exit 1
+
+elif [[ $CREDIT > $WARNING_VALUE ]]; then
+	echo "OK: $CREDIT remaining"
+	exit
+fi
