@@ -10,7 +10,7 @@ A quick and dirty script to check a SoluSVM VM's bandwidth and issue a WARNING w
 ## [Clickatell](https://www.clickatell.com/)
 
 ### Credit Check
-Check current Clickatell credit via their HTTP API
+Check current Clickatell credit
 [File](./check_credit)
 
 #### Requirements
@@ -22,5 +22,5 @@ Check current Clickatell credit via their HTTP API
 
 #### Usage
 ```
-./check_credit -user Example -pass 1234567 -api 44319 -w 20 -c 10
+./check_credit -user <user> -pass <password> -api <api_id>
 ```

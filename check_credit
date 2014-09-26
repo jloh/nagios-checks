@@ -1,24 +1,51 @@
 #!/bin/bash
 #
-# check_credit
+# check_credit v1.1
+#
+# Author:  Mooash <mooash@gmail.com>
+# Website: http://www.mooash.me/
+# LICENSE:
+# The MIT License (MIT)
+#
+# Copyright (c) 2014
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+#
+# Usage: ./check_credit -user <user> -pass <password> -api <api_id>
 #
 
-# Get our functions
+# Get our binaries
 CURL=$(which curl)
 AWK=$(which awk)
 
 # Help function
 printHelp() {
-	echo "USAGE: $0 ./check_credit -user <user> -pass <password> -api <api_id> [-c] [-w]"
+	echo "USAGE: $0 -user <user> -pass <password> -api <api_id> [-c] [-w]"
 }
 
-# Define our constants
-# Also define warning and critical defaults
+# Define our constants/defaults
 API_URL="https://api.clickatell.com/http/getbalance"
-WARNING_VALUE="20"
-CRITICAL_VALUE="10"
+WARNING_THRESHOLD="20"
+CRITICAL_THRESHOLD="10"
 
-# Get arguments
+# Turn CLI arguments into variables
 while [[ $# -gt 0 ]] && [[ ."$1" = .-* ]] ;
 do
 	opt="$1";
@@ -40,11 +67,11 @@ do
 			shift
 			;;
 		"-c" )
-			CRITICAL_VALUE="$1"
+			CRITICAL_THRESHOLD="$1"
 			shift
 			;;
 		"-w" )
-			WARNING_VALUE="$1"
+			WARNING_THRESHOLD="$1"
 			shift
 			;;
 		*) 
@@ -55,25 +82,26 @@ do
 	esac
 done
 
-if [ -z "${USER}" ] || [ -z "${PASS}" ]; then
-	echo "Arguments not set"
+# If our basic variables aren't set we can't run
+if [[ -z "${USER}" ]] || [[ -z "${PASS}" ]] || [[ -z "${API_ID}" ]]; then
+	echo "Required arguments not set"
 	printHelp
 	exit 3
 fi
 
-# Get credits
-CREDIT=$($CURL -s "$API_URL?user=$USER&password=$PASS&api_id=$API_ID" | $AWK '{print $2}')
+# Get current remaining credit
+CREDIT_REMAINING=$($CURL -s "$API_URL?user=$USER&password=$PASS&api_id=$API_ID" | $AWK '{printf "%.0f\n", $2}')
 
 # Return our results
-if [[ $CREDIT < $CRITICAL_VALUE ]]; then
-	echo "CRITICAL: Only $CREDIT remaining"
+if (( $CREDIT_REMAINING < $CRITICAL_THRESHOLD )); then
+	echo "CRITICAL: Only $CREDIT_REMAINING remaining"
 	exit 2
 
-elif [[ $CREDIT < $WARNING_VALUE ]]; then
-	echo "WARNING: Only $CREDIT remaining"
+elif (( $CREDIT_REMAINING < $WARNING_THRESHOLD )); then
+	echo "WARNING: Only $CREDIT_REMAINING remaining"
 	exit 1
 
-elif [[ $CREDIT > $WARNING_VALUE ]]; then
-	echo "OK: $CREDIT remaining"
+elif (( $CREDIT_REMAINING > $WARNING_THRESHOLD )); then
+	echo "OK: $CREDIT_REMAINING remaining"
 	exit
 fi
