@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# check_credit v1.1
+# check_credit v1.1.1
 #
 # Author:  Mooash <mooash@gmail.com>
 # Website: http://www.mooash.me/
@@ -36,7 +36,7 @@ CURL=$(which curl)
 AWK=$(which awk)
 
 # Help function
-printHelp() {
+function printHelp() {
 	echo "USAGE: $0 -user <user> -pass <password> -api <api_id> [-c] [-w]"
 }
 
